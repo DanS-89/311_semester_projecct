@@ -34,6 +34,8 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     Button editButton, deleteButton, addButton, clearButton;
     @FXML
+    ComboBox<String> majorComboBox;
+    @FXML
     ImageView img_view;
     @FXML
     MenuBar menuBar;
@@ -45,10 +47,13 @@ public class DB_GUI_Controller implements Initializable {
     private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_major, tv_email;
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
+    private ObservableList<String> majorCombo;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
+            majorCombo = FXCollections.observableArrayList("Business", "Biology", "Accounting", "Architecture", "Biology", "Computer Science", "Liberal Arts");
+
             tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
             tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
@@ -64,6 +69,8 @@ public class DB_GUI_Controller implements Initializable {
             addButton.disableProperty().bind(first_name.textProperty().isEmpty().or(last_name.textProperty().isEmpty()).or(department.textProperty().isEmpty()).or(major.textProperty().isEmpty()).or(email.textProperty().isEmpty()).or(imageURL.textProperty().isEmpty()).or(tv.getSelectionModel().selectedItemProperty().isNotNull()));
 
             clearButton.disableProperty().bind(first_name.textProperty().isEmpty().and(last_name.textProperty().isEmpty()).and(department.textProperty().isEmpty()).and(major.textProperty().isEmpty()).and(email.textProperty().isEmpty()).and(imageURL.textProperty().isEmpty()));
+
+            majorComboBox.setItems(majorCombo);
 
             tv.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newSelection) -> {
                 if (newSelection == null){
@@ -90,7 +97,7 @@ public class DB_GUI_Controller implements Initializable {
         }
 
             Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                    major.getText(), email.getText(), imageURL.getText());
+                    majorComboBox.getValue(), email.getText(), imageURL.getText());
             cnUtil.insertUser(p);
             cnUtil.retrieveId(p);
             p.setId(cnUtil.retrieveId(p));
@@ -104,6 +111,7 @@ public class DB_GUI_Controller implements Initializable {
         last_name.setText("");
         department.setText("");
         major.setText("");
+        majorComboBox.getSelectionModel().clearSelection();
         email.setText("");
         imageURL.setText("");
 
